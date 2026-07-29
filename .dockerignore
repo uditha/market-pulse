@@ -1,6 +1,5 @@
 .git
 .pnpm-store
-node_modules
 **/node_modules
 **/dist
 **/.next
@@ -8,7 +7,10 @@ node_modules
 **/.venv
 **/__pycache__
 services/extractors/data
-apps/mobile
+apps/mobile/app
+apps/mobile/assets
+apps/mobile/components
+apps/mobile/lib
 apps/web/src
 apps/web/public
 *.md
