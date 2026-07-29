@@ -4902,6 +4902,7 @@ html[data-theme="dark"] .ei3-rail-btn.is-active span {
     transform 0.18s ease;
   position: relative;
   overflow: hidden;
+  min-width: 0;
 }
 
 .ms-pulse-cell::before {
@@ -4945,6 +4946,9 @@ html[data-theme="dark"] .ei3-rail-btn.is-active span {
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .ms-pulse-value {
@@ -4966,6 +4970,22 @@ html[data-theme="dark"] .ei3-rail-btn.is-active span {
   width: 100%;
   height: 22px;
   margin-top: 6px;
+}
+
+.ms-pulse-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+}
+
+.ms-pulse-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 2px;
 }
 
 .ms-desk {
@@ -5225,19 +5245,70 @@ html[data-theme="dark"] .ei3-rail-btn.is-active span {
   }
 }
 
+@media (max-width: 900px) {
+  .ms-pulse {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 2px;
+    padding: 2px 2px 12px;
+    margin-bottom: 22px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+
+  .ms-pulse-cell {
+    flex: 0 0 min(68vw, 220px);
+    scroll-snap-align: start;
+    padding: 14px;
+  }
+
+  .ms-pulse-value {
+    font-size: 1.35rem;
+  }
+
+  .ms-pulse-cell .ms-spark {
+    height: 28px;
+  }
+
+  .ms-movers-row {
+    display: flex;
+    overflow-x: auto;
+    gap: 8px;
+    padding-bottom: 6px;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .ms-mover {
+    flex: 0 0 min(42vw, 160px);
+    scroll-snap-align: start;
+  }
+}
+
 @media (max-width: 720px) {
   .ms-grid {
     grid-template-columns: 1fr;
   }
 
-  .ms-pulse {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .hero-search h1 {
+    max-width: none;
+    font-size: clamp(2.1rem, 11vw, 3rem);
+  }
+
+  .ms-hero-block > p {
+    max-width: none;
+  }
+
+  .ms-pulse-cell {
+    flex-basis: min(78vw, 260px);
   }
 }
 
 @media (max-width: 420px) {
-  .ms-pulse {
-    grid-template-columns: 1fr;
+  .ms-pulse-cell {
+    flex-basis: 84vw;
   }
 }
 

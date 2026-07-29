@@ -171,7 +171,10 @@ function PulseStrip({ markets }: { markets: MorningMarketBoard[] }) {
             className={`ms-pulse-cell tone-${tone}`}
             style={{ animationDelay: `${40 + i * 35}ms` }}
           >
-            <span className="ms-pulse-market">{board.label}</span>
+            <div className="ms-pulse-head">
+              <span className="ms-pulse-market">{board.label}</span>
+              <span className={`delta ${tone}`}>{formatDelta(metric.change)}</span>
+            </div>
             <span className="ms-pulse-label">{metric.shortTitle}</span>
             <strong className="ms-pulse-value">
               {formatMetricNumber(metric.value, metric.unit)}
@@ -179,7 +182,6 @@ function PulseStrip({ markets }: { markets: MorningMarketBoard[] }) {
                 <span className="ms-metric-unit">{unitSuffix(metric.unit)}</span>
               ) : null}
             </strong>
-            <span className={`delta ${tone}`}>{formatDelta(metric.change)}</span>
             <MiniSpark values={metric.sparkline} />
           </Link>
         );
