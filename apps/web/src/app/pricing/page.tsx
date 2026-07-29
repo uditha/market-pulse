@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { api } from "@/lib/api";
 
 export default function PricingPage() {
@@ -28,24 +29,32 @@ export default function PricingPage() {
   }
 
   return (
-    <main>
-      <h1 className="section-title" style={{ fontSize: "2rem" }}>
-        Pro — $2.99–4.99 / month
-      </h1>
-      <p style={{ color: "var(--muted)", maxWidth: 520 }}>
-        Drivers and Analysis are free with an account for now. Pro will keep the deepest
-        diagnostics and MAX history when paid locks go live.
+    <main className="pricing-story">
+      <p className="hero-eyebrow">MarketPulse Pro</p>
+      <h1 className="pricing-story-brand">Stay ahead of every CBSL print.</h1>
+      <p className="pricing-story-lead">
+        Free today: open the desks, read the morning brief, and explore Drivers
+        and Analysis with an account. Pro keeps the deepest tools when paid
+        locks go live.
       </p>
-      <div className="panel" style={{ maxWidth: 420 }}>
-        <ul style={{ lineHeight: 1.7, paddingLeft: 18 }}>
-          <li>Priority when Analysis moves behind subscription</li>
-          <li>MAX history depth</li>
-          <li>Watchlist + update alerts when CBSL prints</li>
+
+      <div className="panel pricing-story-panel">
+        <h2>Pro</h2>
+        <p className="pricing-story-price">$2.99–4.99 / month</p>
+        <ul>
+          <li>Priority access when Analysis moves behind subscription</li>
+          <li>MAX history depth for serious backreads</li>
+          <li>Watchlist + alerts the moment CBSL prints</li>
         </ul>
-        <button className="btn btn-primary" disabled={loading} onClick={upgrade}>
-          {loading ? "…" : "Upgrade to Pro"}
-        </button>
-        {msg && <p style={{ color: "var(--muted)" }}>{msg}</p>}
+        <div className="ms-story-ctas">
+          <button className="btn btn-primary" disabled={loading} onClick={upgrade}>
+            {loading ? "…" : "Upgrade to Pro"}
+          </button>
+          <Link href="/markets/mm" className="btn btn-ghost">
+            Try Money Market first
+          </Link>
+        </div>
+        {msg ? <p style={{ color: "var(--muted)", marginTop: 14 }}>{msg}</p> : null}
       </div>
     </main>
   );

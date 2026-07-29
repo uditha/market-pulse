@@ -178,7 +178,7 @@ export function AppSidebar({
           <Link href="/" className="brand" onClick={onClose}>
             Market<span>Pulse</span>
           </Link>
-          <p className="sidebar-tagline">Verified Sri Lanka markets</p>
+          <p className="sidebar-tagline">CBSL-verified morning brief</p>
         </div>
 
         <nav className="sidebar-nav" onClick={onClose}>
@@ -204,12 +204,24 @@ export function AppSidebar({
             {MARKET_TABS.map((tab) => {
               const href = `/markets/${tab.path}`;
               const active = pathname === href || pathname.startsWith(`${href}/`);
+              const guideHint =
+                tab.id === "mm"
+                  ? "Start here"
+                  : tab.id === "fx"
+                    ? "Rupee"
+                    : tab.id === "fi"
+                      ? "Bills"
+                      : tab.id === "share"
+                        ? "Equities"
+                        : tab.id === "ei"
+                          ? "Macro"
+                          : "External";
               return (
                 <NavLink
                   key={tab.id}
                   href={href}
                   label={tab.title}
-                  hint={tab.live ? tab.label : "Soon"}
+                  hint={tab.live ? guideHint : "Soon"}
                   icon={<Icon id={tab.id} />}
                   active={active}
                   muted={!tab.live}
@@ -246,7 +258,7 @@ export function AppSidebar({
         </nav>
 
         <div className="sidebar-foot">
-          <span className="sidebar-foot-meta">MM · EI · ESP live</span>
+          <span className="sidebar-foot-meta">Start with Money Market</span>
         </div>
       </aside>
     </>

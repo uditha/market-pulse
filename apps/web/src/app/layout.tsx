@@ -5,9 +5,9 @@ import { CommandPalette } from "@/components/CommandPalette";
 import { THEME_BOOT_SCRIPT } from "@/lib/theme";
 
 export const metadata: Metadata = {
-  title: "MarketPulse — Sri Lanka Morning Summary",
+  title: "MarketPulse — Sri Lanka Morning Market Brief",
   description:
-    "Morning briefing across Sri Lanka money markets, FX, fixed income, shares, macro indicators, and market news.",
+    "The Sri Lanka morning market brief, told in order. Verified CBSL prints across money markets, FX, bills, shares, and macro — start with Money Market.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

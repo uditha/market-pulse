@@ -19,8 +19,8 @@ export function MarketComingSoon({ tabId }: { tabId: MarketTabId }) {
           Coming soon
         </h2>
         <p style={{ color: "var(--muted)", margin: 0, maxWidth: 420 }}>
-          Money Market is live today. {tab.title} will land here with the same verified
-          publish flow.
+          Start with Money Market for today&apos;s live desk. {tab.title} will land
+          here with the same verified publish flow.
         </p>
       </section>
     </main>

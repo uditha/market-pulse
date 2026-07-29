@@ -4755,6 +4755,400 @@ html[data-theme="dark"] .ei3-rail-btn.is-active span {
   padding-bottom: 28px;
 }
 
+/* —— Story home: guided morning brief —— */
+.story-home {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.ms-story-hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: clamp(20px, 4vw, 48px);
+  align-items: end;
+  min-height: min(72vh, 640px);
+  margin: 0 0 48px;
+  padding: 8px 0 36px;
+  overflow: hidden;
+}
+
+.ms-story-hero::before {
+  content: "";
+  position: absolute;
+  inset: -8% -6% auto -4%;
+  height: 78%;
+  background:
+    radial-gradient(ellipse 70% 60% at 12% 18%, var(--glow-a), transparent 70%),
+    radial-gradient(ellipse 55% 50% at 88% 30%, var(--glow-b), transparent 68%);
+  pointer-events: none;
+  z-index: 0;
+  animation: fade 0.9s ease both;
+}
+
+.ms-story-copy {
+  position: relative;
+  z-index: 1;
+  max-width: 36rem;
+  animation: rise 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.ms-story-copy .ms-hero-title-row {
+  margin-bottom: 18px;
+}
+
+.ms-story-copy h1 {
+  font-family: var(--font-display);
+  font-size: clamp(2.8rem, 7vw, 4.6rem);
+  font-weight: 800;
+  letter-spacing: -0.06em;
+  margin: 0;
+  line-height: 0.95;
+  color: var(--ink);
+  max-width: none;
+}
+
+.ms-story-headline {
+  margin: 0 0 12px;
+  font-family: var(--font-display);
+  font-size: clamp(1.15rem, 2.2vw, 1.45rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.3;
+  color: var(--ink-soft);
+  max-width: 28ch;
+}
+
+.ms-story-support {
+  margin: 0 0 22px;
+  color: var(--muted);
+  font-size: 1.02rem;
+  line-height: 1.55;
+  max-width: 40ch;
+}
+
+.ms-story-ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.ms-story-ctas .btn {
+  text-decoration: none;
+}
+
+.ms-story-line {
+  margin: 0;
+  padding: 12px 0 0;
+  border-top: 1px solid var(--line);
+  font-size: 0.92rem;
+  line-height: 1.45;
+  color: var(--ink-soft);
+  max-width: 42ch;
+  animation: fade 0.7s ease 0.25s both;
+}
+
+.ms-story-line-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-deep);
+  margin-bottom: 6px;
+}
+
+.ms-feature {
+  position: relative;
+  z-index: 1;
+  display: block;
+  min-height: min(48vh, 420px);
+  text-decoration: none;
+  color: inherit;
+  overflow: hidden;
+  isolation: isolate;
+  animation: rise 0.75s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both;
+}
+
+.ms-feature-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      165deg,
+      color-mix(in srgb, var(--accent) 14%, transparent),
+      transparent 55%
+    ),
+    linear-gradient(180deg, var(--wash-top), var(--wash-bottom));
+}
+
+.ms-feature-bg .ms-feature-spark {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 58%;
+  opacity: 0.9;
+}
+
+.ms-feature-copy {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  height: 100%;
+  min-height: inherit;
+  padding: clamp(20px, 3vw, 32px);
+  background: linear-gradient(
+    180deg,
+    transparent 20%,
+    color-mix(in srgb, var(--paper) 55%, transparent) 55%,
+    color-mix(in srgb, var(--paper) 92%, transparent) 100%
+  );
+}
+
+.ms-feature-kicker {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-deep);
+  margin-bottom: 10px;
+}
+
+.ms-feature-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.ms-feature-value {
+  font-family: var(--font-mono);
+  font-size: clamp(2.8rem, 6vw, 4.2rem);
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  line-height: 0.95;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  margin-bottom: 10px;
+}
+
+.ms-feature-meta {
+  font-family: var(--font-mono);
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.ms-feature-desk {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.ms-feature:hover .ms-feature-value {
+  color: var(--accent-deep);
+}
+
+.ms-act {
+  margin: 0 0 40px;
+  scroll-margin-top: 88px;
+  animation: fade 0.55s ease both;
+}
+
+.ms-search-act {
+  max-width: 720px;
+}
+
+.ms-search-act .search-box {
+  margin-top: 4px;
+}
+
+.ms-empty {
+  padding: 28px 4px;
+  max-width: 42ch;
+}
+
+.ms-empty p {
+  margin: 0 0 16px;
+  color: var(--muted);
+  line-height: 1.55;
+  font-size: 0.98rem;
+}
+
+.ms-empty-tight {
+  padding: 12px 0 4px;
+}
+
+.ms-empty-tight p {
+  margin: 0;
+}
+
+.ms-path {
+  margin: 0 0 44px;
+}
+
+.ms-path-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.ms-path-step {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 18px 16px 16px;
+  text-decoration: none;
+  color: inherit;
+  border-bottom: 1px solid var(--line);
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+  animation: rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.ms-path-step:hover {
+  background: color-mix(in srgb, var(--accent-soft) 55%, transparent);
+  border-bottom-color: color-mix(in srgb, var(--accent) 40%, var(--line));
+  transform: translateY(-2px);
+}
+
+.ms-path-index {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--muted-soft);
+}
+
+.ms-path-title {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+}
+
+.ms-path-plain {
+  font-size: 0.86rem;
+  line-height: 1.4;
+  color: var(--muted);
+  flex: 1;
+}
+
+.ms-path-cta {
+  margin-top: 8px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--accent-deep);
+}
+
+.ms-board-plain {
+  margin: 4px 0 0;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  color: var(--muted);
+  max-width: 28ch;
+}
+
+.pricing-story {
+  max-width: 720px;
+  padding-bottom: 40px;
+}
+
+.pricing-story .hero-eyebrow {
+  margin-bottom: 12px;
+}
+
+.pricing-story-brand {
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 5vw, 3.4rem);
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  margin: 0 0 14px;
+  line-height: 0.98;
+  color: var(--ink);
+}
+
+.pricing-story-lead {
+  margin: 0 0 28px;
+  font-size: 1.1rem;
+  line-height: 1.5;
+  color: var(--muted);
+  max-width: 40ch;
+}
+
+.pricing-story-panel {
+  max-width: 460px;
+}
+
+.pricing-story-panel h2 {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin: 0 0 8px;
+}
+
+.pricing-story-price {
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--accent-deep);
+  margin: 0 0 16px;
+}
+
+.pricing-story-panel ul {
+  line-height: 1.75;
+  padding-left: 18px;
+  margin: 0 0 20px;
+  color: var(--ink-soft);
+}
+
+@media (max-width: 960px) {
+  .ms-story-hero {
+    grid-template-columns: 1fr;
+    min-height: 0;
+    gap: 28px;
+    margin-bottom: 36px;
+  }
+
+  .ms-feature {
+    min-height: 280px;
+  }
+
+  .ms-path-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .ms-path-row {
+    grid-template-columns: 1fr;
+  }
+
+  .ms-story-copy h1 {
+    font-size: clamp(2.4rem, 12vw, 3.2rem);
+  }
+
+  .ms-feature {
+    min-height: 240px;
+  }
+
+  .ms-feature-value {
+    font-size: clamp(2.4rem, 12vw, 3.2rem);
+  }
+}
+
 .ms-movers {
   display: flex;
   align-items: center;
