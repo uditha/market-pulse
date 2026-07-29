@@ -62,7 +62,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             )}
           </nav>
         </header>
-        <div className="app-content">{children}</div>
+        <div className={`app-content${pathname === "/" ? " is-home" : ""}`}>{children}</div>
       </div>
     </div>
   );
