@@ -1,0 +1,15 @@
+{
+  "name": "@lankapulse/extractors",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "postinstall": "python3 -m venv .venv && .venv/bin/pip install -q -r requirements.txt",
+    "start": "bash scripts/run.sh",
+    "ingest": "bash scripts/run.sh",
+    "dev": "bash scripts/run.sh --dry-run",
+    "test": "bash scripts/run.sh --self-test",
+    "news": "bash scripts/run-news.sh",
+    "news:dry": "bash scripts/run-news.sh --dry-run"
+  }
+}

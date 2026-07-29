@@ -1,0 +1,23 @@
+name: market-pulse
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: market-pulse-db
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: lankapulse
+      POSTGRES_PASSWORD: lankapulse
+      POSTGRES_DB: lankapulse
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lankapulse -d lankapulse"]
+      interval: 3s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  pgdata:

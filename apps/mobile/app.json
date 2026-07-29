@@ -1,0 +1,29 @@
+{
+  "expo": {
+    "name": "MarketPulse",
+    "slug": "marketpulse",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "scheme": "marketpulse",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#eef4f1"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "lk.marketpulse.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "backgroundColor": "#eef4f1"
+      },
+      "package": "lk.marketpulse.app"
+    },
+    "plugins": ["expo-router"]
+  }
+}

@@ -1,0 +1,47 @@
+/**
+ * External Sector Performance desk — series fetched for the showcase.
+ */
+
+export const ESP_SERIES_IDS = [
+  "sl.ei.bop.current_account",
+  "sl.ei.bop.current_account_ytd",
+  "sl.ei.trade.exports",
+  "sl.ei.trade.imports",
+  "sl.ei.trade.balance",
+  "sl.ei.trade.exports_ytd",
+  "sl.ei.trade.imports_ytd",
+  "sl.ei.trade.balance_ytd",
+  "sl.ei.trade.exports_yoy",
+  "sl.ei.trade.imports_yoy",
+  "sl.ei.services.net",
+  "sl.ei.services.net_ytd",
+  "sl.ei.services.net_yoy",
+  "sl.ei.services.inflows",
+  "sl.ei.services.outflows",
+  "sl.ei.services.transport_inflows",
+  "sl.ei.services.it_bpo",
+  "sl.ei.services.travel_abroad",
+  "sl.ei.services.transport_outflows",
+  "sl.ei.income.primary_net",
+  "sl.ei.income.primary_inflows",
+  "sl.ei.income.primary_outflows",
+  "sl.ei.income.secondary_net",
+  "sl.ei.income.personal_outflows",
+  "sl.ei.remittances_usd",
+  "sl.ei.remittances_usd_ytd",
+  "sl.ei.remittances_usd_yoy",
+  "sl.ei.tourist_earnings_usd",
+  "sl.ei.tourist_earnings_usd_ytd",
+  "sl.ei.tourist_earnings_usd_yoy",
+  "sl.ei.tourist_arrivals",
+  "sl.ei.tourist_arrivals_ytd",
+  "sl.ei.flows.cse",
+  "sl.ei.flows.gov_securities",
+  "sl.ei.flows.cse_ytd",
+  "sl.ei.flows.gov_securities_ytd",
+  "sl.ei.reserves.gor",
+  "sl.ei.reserves.change",
+  "sl.ei.total_reserves",
+] as const;
+
+export type EspSeriesId = (typeof ESP_SERIES_IDS)[number];

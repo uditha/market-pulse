@@ -1,0 +1,24 @@
+{
+  "name": "lankapulse",
+  "private": true,
+  "packageManager": "pnpm@10.12.1",
+  "scripts": {
+    "dev": "turbo run dev --parallel --filter=@lankapulse/api --filter=@lankapulse/web",
+    "dev:mobile": "pnpm --filter @lankapulse/mobile start",
+    "build": "pnpm --filter @lankapulse/shared build && pnpm --filter @lankapulse/db build && turbo run build --filter=@lankapulse/api --filter=@lankapulse/web",
+    "setup": "pnpm install && pnpm --filter @lankapulse/shared build && pnpm --filter @lankapulse/db build && pnpm db:migrate && pnpm db:seed",
+    "lint": "turbo run lint",
+    "db:generate": "pnpm --filter @lankapulse/db generate",
+    "db:migrate": "pnpm --filter @lankapulse/db migrate",
+    "db:seed": "pnpm --filter @lankapulse/db seed",
+    "db:from-sqlite": "pnpm --filter @lankapulse/db migrate:from-sqlite",
+    "docker:up": "docker compose up -d db",
+    "docker:down": "docker compose down",
+    "extract": "pnpm --filter @lankapulse/extractors start",
+    "extract:news": "pnpm --filter @lankapulse/extractors news"
+  },
+  "devDependencies": {
+    "turbo": "^2.10.5",
+    "typescript": "^5.9.2"
+  }
+}

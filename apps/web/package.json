@@ -1,0 +1,29 @@
+{
+  "name": "@lankapulse/web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --port 3000",
+    "build": "next build",
+    "start": "next start --port 3000"
+  },
+  "dependencies": {
+    "@lankapulse/shared": "workspace:*",
+    "better-auth": "^1.6.23",
+    "echarts": "^6.1.0",
+    "echarts-for-react": "^3.0.6",
+    "lightweight-charts": "^5.0.8",
+    "next": "^16.2.10",
+    "pg": "^8.16.3",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.10",
+    "@types/pg": "^8.15.5",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "typescript": "^5.9.2"
+  }
+}
