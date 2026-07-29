@@ -11,8 +11,6 @@ apps/mobile/app
 apps/mobile/assets
 apps/mobile/components
 apps/mobile/lib
-apps/web/src
-apps/web/public
 *.md
 .claude
 _tmp_*
