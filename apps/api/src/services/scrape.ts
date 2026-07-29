@@ -301,7 +301,9 @@ export async function runScrape(opts: {
         cwd: extractorDir,
         env: {
           ...process.env,
-          API_URL: process.env.API_URL ?? "http://127.0.0.1:4000",
+          API_URL:
+            process.env.API_URL ||
+            `http://127.0.0.1:${process.env.PORT ?? 4000}`,
           // Line-buffer scraper prints so Admin can stream progress.
           PYTHONUNBUFFERED: "1",
         },

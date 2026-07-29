@@ -146,7 +146,9 @@ async function runNewsScrape(opts: {
         cwd: extractorDir,
         env: {
           ...process.env,
-          API_URL: process.env.API_URL ?? "http://127.0.0.1:4000",
+          API_URL:
+            process.env.API_URL ||
+            `http://127.0.0.1:${process.env.PORT ?? 4000}`,
           PYTHONUNBUFFERED: "1",
         },
       });

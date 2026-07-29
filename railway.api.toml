@@ -1,6 +1,6 @@
 [build]
-builder = "NIXPACKS"
-buildCommand = "pnpm install --frozen-lockfile && pnpm --filter @lankapulse/shared build && pnpm --filter @lankapulse/db build && pnpm --filter @lankapulse/api build"
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile.api"
 
 [deploy]
 preDeployCommand = "pnpm db:migrate && pnpm db:seed"
