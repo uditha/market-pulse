@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "postinstall": "python3 -m venv .venv && .venv/bin/pip install -q -r requirements.txt",
+    "postinstall": "command -v python3 >/dev/null 2>&1 && python3 -m venv .venv && .venv/bin/pip install -q -r requirements.txt || echo '[@lankapulse/extractors] skip venv (no python3)'",
     "start": "bash scripts/run.sh",
     "ingest": "bash scripts/run.sh",
     "dev": "bash scripts/run.sh --dry-run",

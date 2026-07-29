@@ -1,5 +1,10 @@
 [phases.setup]
 nixPkgs = ["nodejs_22", "pnpm"]
 
+[phases.install]
+cmds = ["pnpm install --frozen-lockfile"]
+
 [variables]
 NIXPACKS_NODE_VERSION = "22"
+# Avoid Nixpacks guessing a second install that fights our monorepo filters.
+NIXPACKS_NO_CACHE = "0"
