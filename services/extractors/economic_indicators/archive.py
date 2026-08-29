@@ -21,6 +21,7 @@ from pathlib import Path
 import httpx
 
 from .common import (
+    HEADERS,
     LISTINGS,
     PDF_REPORT_IDS,
     content_hash_bytes,
@@ -74,20 +75,17 @@ def archive_report(
     raw_dir.mkdir(parents=True, exist_ok=True)
     known = _existing_hashes(raw_dir, report_id)
 
-    headers = {
-        "User-Agent": (
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
-            "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
-        ),
-    }
-
     print(f"\n=== {report_id} {iso(from_d)} → {iso(to_d)} ===", flush=True)
-    with httpx.Client(follow_redirects=True, timeout=120.0, headers=headers) as client:
+    with httpx.Client(follow_redirects=True, timeout=120.0, headers=HEADERS) as client:
         print(f"  Discovering listing (up to {max_listing_pages} pages) …", flush=True)
         listed = discover_listing_pdfs(
-            report_id, max_pages=max_listing_pages, client=client
+            report_id,
+            max_pages=max_listing_pages,
+            client=client,
+            min_period=from_d,
+            page_delay=0.35,
         )
-        windowed = filter_by_window(listed, from_d, to_d)
+        windowed = filter_by_window(listed, from_d, to_d, include_latest=True)
         print(
             f"  Listed {len(listed)}; {len(windowed)} in window "
             f"(oldest listed {iso(listed[-1].period) if listed else '—'})",
@@ -118,6 +116,8 @@ def archive_report(
                     item.url,
                     referer=listing.listing_url,
                     client=client,
+                    report_id=report_id,
+                    period=item.period,
                 )
             except Exception as exc:  # noqa: BLE001
                 print(f"  {step} DOWNLOAD FAIL: {exc}", flush=True)

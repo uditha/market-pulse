@@ -7,6 +7,10 @@ RUN apt-get update \
     python3-venv \
     python3-pip \
     ca-certificates \
+    libjpeg62-turbo \
+    libpng16-16 \
+    zlib1g \
+    fonts-dejavu-core \
   && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -20,12 +24,15 @@ COPY apps/web/package.json ./apps/web/package.json
 COPY apps/mobile/package.json ./apps/mobile/package.json
 COPY services/extractors ./services/extractors
 
-# postinstall creates extractors/.venv when python3 is present
+# postinstall creates extractors/.venv; re-install + import-check so PDF deps
+# cannot silently go missing (HTML scrapes would still look "ready").
 RUN pnpm install --frozen-lockfile \
   && pnpm --filter @lankapulse/shared build \
   && pnpm --filter @lankapulse/db build \
   && pnpm --filter @lankapulse/api build \
-  && test -x services/extractors/.venv/bin/python
+  && test -x services/extractors/.venv/bin/python \
+  && services/extractors/.venv/bin/pip install --no-cache-dir -r services/extractors/requirements.txt \
+  && services/extractors/.venv/bin/python -c "import pdfplumber, httpx, bs4, openpyxl"
 
 ENV HOST=0.0.0.0
 ENV NODE_ENV=production

@@ -18,7 +18,16 @@ export function AdminPanel() {
   const { data: session } = authClient.useSession();
   const showOpsLink = canAccessOps(getStaffRole(session));
   const [status, setStatus] = useState<ScrapeStatus | null>(null);
-  const [selected, setSelected] = useState<string[]>(["5206", "1059", "1064", "6277"]);
+  const [selected, setSelected] = useState<string[]>([
+    "5206",
+    "1059",
+    "1064",
+    "6277",
+    "daily-economic-indicators",
+    "weekly-economic-indicators",
+    "monthly-economic-indicators",
+    "external-sector-performance",
+  ]);
   const [days, setDays] = useState(14);
   const [unlockLocked, setUnlockLocked] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -407,6 +416,40 @@ export function AdminPanel() {
 
       <section className="panel">
         <h2 className="section-title">CBSL sources</h2>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", margin: "8px 0 0" }}>
+          <button
+            className="btn"
+            type="button"
+            disabled={active}
+            onClick={() =>
+              setSelected((status?.sources ?? []).map((s) => s.id))
+            }
+          >
+            Select all
+          </button>
+          <button
+            className="btn"
+            type="button"
+            disabled={active}
+            onClick={() =>
+              setSelected(
+                (status?.sources ?? [])
+                  .filter((s) => /pdf|economic-indicators|external-sector|policy-rates|inflation/i.test(s.id + s.title))
+                  .map((s) => s.id),
+              )
+            }
+          >
+            PDF / web sources
+          </button>
+          <button
+            className="btn"
+            type="button"
+            disabled={active}
+            onClick={() => setSelected(["5206", "1059", "1064", "6277"])}
+          >
+            Money market only
+          </button>
+        </div>
         <div style={{ display: "grid", gap: 8, margin: "14px 0 18px" }}>
           {(status?.sources ?? []).map((src) => (
             <label
@@ -440,6 +483,13 @@ export function AdminPanel() {
                 {src.production && !src.locked ? (
                   <span className="badge verified" style={{ marginLeft: 8 }}>
                     Prod slice
+                  </span>
+                ) : null}
+                {/pdf/i.test(src.title) ||
+                src.id.includes("economic-indicators") ||
+                src.id === "external-sector-performance" ? (
+                  <span className="badge" style={{ marginLeft: 8 }}>
+                    PDF
                   </span>
                 ) : null}
               </span>

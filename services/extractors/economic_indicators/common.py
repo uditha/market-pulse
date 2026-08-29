@@ -27,6 +27,7 @@ HEADERS = {
         "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
     ),
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept-Language": "en-US,en;q=0.9",
 }
 
 MONTHS = {
@@ -307,19 +308,29 @@ def discover_listing_pdfs(
     *,
     max_pages: int = 8,
     client: httpx.Client | None = None,
+    min_period: date | None = None,
+    page_delay: float = 0.0,
 ) -> list[ListedPdf]:
-    """Walk Drupal Views pages and collect English PDF report links."""
+    """Walk Drupal Views pages and collect English PDF report links.
+
+    Listings are newest-first. When ``min_period`` is set, stop once a page's
+    oldest item is older than the lookback — avoids 80 tight-loop requests
+    from datacenter IPs (CBSL WAF often then 404s the PDF downloads).
+    """
     listing = LISTINGS[report_id]
     own_client = client is None
     client = client or httpx.Client(follow_redirects=True, timeout=90.0, headers=HEADERS)
     found: dict[str, ListedPdf] = {}
     try:
         for page in range(max_pages):
+            if page > 0 and page_delay > 0:
+                time.sleep(page_delay)
             url = listing.listing_url if page == 0 else f"{listing.listing_url}?page={page}"
-            r = client.get(url)
+            r = client.get(url, headers=HEADERS)
             r.raise_for_status()
             soup = BeautifulSoup(r.text, "lxml")
             page_hits = 0
+            page_oldest: date | None = None
             for a in soup.find_all("a"):
                 href = (a.get("href") or "").strip()
                 title = a.get_text(" ", strip=True)
@@ -364,7 +375,11 @@ def discover_listing_pdfs(
                     period=period,
                 )
                 page_hits += 1
+                if page_oldest is None or period < page_oldest:
+                    page_oldest = period
             if page_hits == 0 and page > 0:
+                break
+            if min_period and page_oldest is not None and page_oldest < min_period:
                 break
     finally:
         if own_client:
@@ -377,29 +392,103 @@ def filter_by_window(
     items: Iterable[ListedPdf],
     from_d: date,
     to_d: date,
+    *,
+    include_latest: bool = False,
 ) -> list[ListedPdf]:
-    return [x for x in items if from_d <= x.period <= to_d]
+    """Keep items in [from_d, to_d].
+
+    Monthly / ESP prints use month-start periods, so a short lookback (14d)
+    in late August misses June. ``include_latest`` keeps the newest file that
+    is not after ``to_d`` so publish-lag reports still scrape.
+    """
+    seq = list(items)
+    windowed = [x for x in seq if from_d <= x.period <= to_d]
+    if include_latest and seq:
+        newest = max(seq, key=lambda x: x.period)
+        if newest.period <= to_d and newest not in windowed:
+            windowed = [newest, *windowed]
+    return windowed
 
 
 def pdf_url_variants(url: str) -> list[str]:
-    """CBSL often republishes as `_e_0.pdf` / `DEI_dd_mm_yyyy.pdf` after a rename."""
+    """CBSL republishes as `_e_N.pdf` and sometimes moves files between folders."""
     seen: list[str] = []
     candidates = [url]
-    if url.endswith("_e.pdf"):
-        candidates.append(url[:-6] + "_e_0.pdf")
-    elif url.endswith("_e_0.pdf"):
-        candidates.append(url[:-8] + "_e.pdf")
-    m = re.search(r"daily_economic_indicators_(\d{4})(\d{2})(\d{2})_e(?:_0)?\.pdf$", url, re.I)
+    stem_m = re.search(r"^(.*?)(_e(?:_\d+)?)?\.pdf$", url, re.I)
+    if stem_m:
+        stem = stem_m.group(1)
+        candidates.append(f"{stem}_e.pdf")
+        for i in range(0, 4):
+            candidates.append(f"{stem}_e_{i}.pdf")
+        candidates.append(f"{stem}.pdf")
+    m = re.search(
+        r"daily_economic_indicators_(\d{4})(\d{2})(\d{2})_e(?:_\d+)?\.pdf$",
+        url,
+        re.I,
+    )
     if m:
         y, mo, d = m.group(1), m.group(2), m.group(3)
         base = url.rsplit("/", 1)[0]
         candidates.append(f"{base}/DEI_{d}_{mo}_{y}.pdf")
         candidates.append(f"{base}/daily_economic_indicators_{y}{mo}{d}_e.pdf")
         candidates.append(f"{base}/daily_economic_indicators_{y}{mo}{d}_e_0.pdf")
+        candidates.append(
+            "https://www.cbsl.gov.lk/sites/default/files/"
+            f"daily_economic_indicators_{y}{mo}{d}_e.pdf"
+        )
+    name = url.rsplit("/", 1)[-1]
+    files_root = "https://www.cbsl.gov.lk/sites/default/files"
+    if re.match(r"MEI_\d{6}", name, re.I):
+        candidates.append(f"{files_root}/{name}")
+        candidates.append(f"{files_root}/cbslweb_documents/statistics/mei/{name}")
+    if re.match(r"WEI_\d{8}", name, re.I):
+        candidates.append(f"{files_root}/{name}")
+        candidates.append(f"{files_root}/cbslweb_documents/statistics/wei/{name}")
+    if "external_sector_performance" in name.lower():
+        candidates.append(f"{files_root}/{name}")
+        candidates.append(f"{files_root}/cbslweb_documents/press/pr/{name}")
     for c in candidates:
         if c not in seen:
             seen.append(c)
     return seen
+
+
+def _fresh_listing_url(
+    report_id: str,
+    period: date,
+    stale_url: str,
+    client: httpx.Client,
+) -> str | None:
+    """Re-read the first listing pages in case Drupal swapped the file href."""
+    listed = discover_listing_pdfs(
+        report_id,
+        max_pages=3,
+        client=client,
+        min_period=period,
+    )
+    for item in listed:
+        if item.period == period and item.url != stale_url:
+            return item.url
+    return None
+
+
+def _try_get_pdf(
+    client: httpx.Client,
+    candidate: str,
+    headers: dict[str, str],
+) -> tuple[bytes, str] | None:
+    r = client.get(candidate, headers=headers)
+    if r.status_code == 404:
+        raise httpx.HTTPStatusError(
+            f"404 Not Found for {candidate}",
+            request=r.request,
+            response=r,
+        )
+    r.raise_for_status()
+    data = r.content
+    if not data.startswith(b"%PDF"):
+        raise RuntimeError(f"Not a PDF from {candidate} (got {data[:40]!r})")
+    return data, str(r.url)
 
 
 def download_pdf(
@@ -408,6 +497,8 @@ def download_pdf(
     referer: str,
     client: httpx.Client,
     retries: int = 3,
+    report_id: str | None = None,
+    period: date | None = None,
 ) -> tuple[bytes, str]:
     """Download a CBSL PDF. Returns (bytes, final_url). Retries + filename variants on 404."""
     headers = {
@@ -416,34 +507,43 @@ def download_pdf(
         "Referer": referer,
     }
     last_err: Exception | None = None
-    for candidate in pdf_url_variants(url):
-        for attempt in range(retries):
-            try:
-                r = client.get(candidate, headers=headers)
-                if r.status_code == 404:
-                    last_err = httpx.HTTPStatusError(
-                        f"404 Not Found for {candidate}",
-                        request=r.request,
-                        response=r,
-                    )
-                    break  # try next filename variant
-                r.raise_for_status()
-                data = r.content
-                if not data.startswith(b"%PDF"):
-                    raise RuntimeError(
-                        f"Not a PDF from {candidate} (got {data[:40]!r})"
-                    )
-                return data, str(r.url)
-            except httpx.HTTPStatusError as exc:
-                last_err = exc
-                if exc.response is not None and exc.response.status_code == 404:
-                    break
-                if attempt + 1 < retries:
-                    time.sleep(1.5 * (attempt + 1))
-            except Exception as exc:  # noqa: BLE001
-                last_err = exc
-                if attempt + 1 < retries:
-                    time.sleep(1.5 * (attempt + 1))
+    tried: set[str] = set()
+    transient = {403, 429, 502, 503}
+
+    def attempt_urls(urls: list[str]) -> tuple[bytes, str] | None:
+        nonlocal last_err
+        for candidate in urls:
+            if candidate in tried:
+                continue
+            tried.add(candidate)
+            for attempt in range(retries):
+                try:
+                    return _try_get_pdf(client, candidate, headers)
+                except httpx.HTTPStatusError as exc:
+                    last_err = exc
+                    status = exc.response.status_code if exc.response is not None else 0
+                    if status == 404:
+                        break
+                    if status in transient and attempt + 1 < retries:
+                        time.sleep(2.0 * (attempt + 1))
+                        continue
+                    if attempt + 1 < retries:
+                        time.sleep(1.5 * (attempt + 1))
+                except Exception as exc:  # noqa: BLE001
+                    last_err = exc
+                    if attempt + 1 < retries:
+                        time.sleep(1.5 * (attempt + 1))
+        return None
+
+    got = attempt_urls(pdf_url_variants(url))
+    if got:
+        return got
+    if report_id and period:
+        fresh = _fresh_listing_url(report_id, period, url, client)
+        if fresh:
+            got = attempt_urls(pdf_url_variants(fresh))
+            if got:
+                return got
     raise RuntimeError(f"Failed to download PDF {url}: {last_err}")
 
 

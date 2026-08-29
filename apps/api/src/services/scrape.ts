@@ -71,6 +71,12 @@ export const SCRAPE_SOURCES = [
     production: true,
     locked: false,
   },
+  {
+    id: "external-sector-performance",
+    title: "External Sector Performance (PDF)",
+    production: true,
+    locked: false,
+  },
 ] as const;
 
 

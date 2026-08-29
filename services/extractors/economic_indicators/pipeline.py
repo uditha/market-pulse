@@ -10,6 +10,7 @@ from typing import Any, Callable
 import httpx
 
 from .common import (
+    HEADERS,
     LISTINGS,
     PDF_REPORT_IDS,
     content_hash_bytes,
@@ -57,12 +58,6 @@ def fetch_and_ingest_pdf_reports(
 
     listing = LISTINGS[report_id]
     normalize = NORMALIZERS[report_id]
-    headers = {
-        "User-Agent": (
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
-            "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
-        ),
-    }
 
     chunks: list[dict[str, Any]] = []
     total_obs = 0
@@ -70,7 +65,7 @@ def fetch_and_ingest_pdf_reports(
     listed_count = 0
     fetched_count = 0
 
-    with httpx.Client(follow_redirects=True, timeout=120.0, headers=headers) as client:
+    with httpx.Client(follow_redirects=True, timeout=120.0, headers=HEADERS) as client:
         print(
             f"    Discovering PDF listing ({listing.listing_url}) …",
             flush=True,
@@ -79,18 +74,37 @@ def fetch_and_ingest_pdf_reports(
             report_id,
             max_pages=max_listing_pages,
             client=client,
+            min_period=from_d,
+            page_delay=0.35,
         )
         listed_count = len(listed)
-        windowed = filter_by_window(listed, from_d, to_d)
-        # Publish lag / weekends: if the lookback window is empty, still try newest.
-        if not windowed and listed and listed[0].period <= to_d:
-            windowed = [listed[0]]
+        windowed = filter_by_window(
+            listed, from_d, to_d, include_latest=True
+        )
         fetched_count = len(windowed)
         print(
             f"    Found {listed_count} listing item(s); "
             f"{fetched_count} in window {iso(from_d)} → {iso(to_d)}",
             flush=True,
         )
+        if listed_count == 0:
+            return {
+                "ok": False,
+                "error": f"No PDF links found on {listing.listing_url}",
+                "warning": None,
+                "observations": 0,
+                "seriesIds": [],
+                "rawPath": None,
+                "contentHash": None,
+                "htmlBytes": 0,
+                "window": {"from": iso(from_d), "to": iso(to_d)},
+                "listed": 0,
+                "fetched": 0,
+                "failedFiles": 0,
+                "okFiles": 0,
+                "chunks": [],
+                "ingest": {"mode": "pdf_batch", "files": 0},
+            }
 
         for i, item in enumerate(windowed):
             step = f"[{i + 1}/{fetched_count}]"
@@ -109,6 +123,8 @@ def fetch_and_ingest_pdf_reports(
                     item.url,
                     referer=listing.listing_url,
                     client=client,
+                    report_id=report_id,
+                    period=item.period,
                 )
             except Exception as exc:  # noqa: BLE001
                 print(f"    {step} WARN skip {iso(item.period)}: {exc}", flush=True)
@@ -213,9 +229,16 @@ def fetch_and_ingest_pdf_reports(
     failed = [c for c in chunks if not c.get("ok")]
     succeeded = [c for c in chunks if c.get("ok")]
     # Partial success is OK — one missing/404 day must not fail the whole report.
-    batch_ok = bool(succeeded) or fetched_count == 0
+    # Empty listing is already returned above. Empty window after a listing hit
+    # is a real miss (do not report OK with 0 files).
+    batch_ok = bool(succeeded)
     warning = None
-    if failed and succeeded:
+    if fetched_count == 0 and listed_count > 0:
+        warning = (
+            f"No PDFs in window {iso(from_d)} → {iso(to_d)} "
+            f"({listed_count} listed)"
+        )
+    elif failed and succeeded:
         warning = (
             f"{len(failed)} of {len(chunks)} PDF(s) skipped "
             f"({', '.join(c.get('period', '?') for c in failed)})"
@@ -254,6 +277,17 @@ def run_pdf_self_test(
 ) -> list[str]:
     """Return list of failure messages (empty = pass)."""
     failures: list[str] = []
+
+    from .common import pdf_url_variants
+
+    mei_vars = pdf_url_variants(
+        "https://www.cbsl.gov.lk/sites/default/files/cbslweb_documents/statistics/mei/MEI_202606_e.pdf"
+    )
+    if (
+        "https://www.cbsl.gov.lk/sites/default/files/cbslweb_documents/statistics/mei/MEI_202606_e_0.pdf"
+        not in mei_vars
+    ):
+        failures.append("MEI url variants missing _e_0.pdf")
 
     # DEI golden values from 01 January 2026 fixture
     dei_path = fixtures_dir / FIXTURE_NAMES["daily-economic-indicators"]
